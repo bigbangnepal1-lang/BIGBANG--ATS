@@ -1,0 +1,61 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>BBN ATS Dashboard</title>
+</head>
+<body>
+<h1>ATS Dashboard</h1>
+
+<h2>Create Job</h2>
+<input id="jobTitle" placeholder="Job Title"/>
+<input id="jobSkills" placeholder="Skills comma separated"/>
+<button onclick="createJob()">Create</button>
+
+<h2>Add Candidate</h2>
+<input id="candName" placeholder="Name"/>
+<input id="candSkills" placeholder="Skills comma separated"/>
+<button onclick="addCandidate()">Add</button>
+
+<h2>Candidates</h2>
+<ul id="list"></ul>
+
+<script>
+const API="http://localhost:5000/api";
+
+async function createJob(){
+ let title=document.getElementById('jobTitle').value;
+ let skills=document.getElementById('jobSkills').value.split(',');
+ await fetch(API+'/jobs',{method:'POST',headers:{'Content-Type':'application/json'},
+ body:JSON.stringify({title,skills})});
+ alert("Job Created");
+}
+
+async function addCandidate(){
+ let name=document.getElementById('candName').value;
+ let skills=document.getElementById('candSkills').value.split(',');
+ let jobSkills=skills; // simple demo
+ let res=await fetch(API+'/candidates',{method:'POST',
+ headers:{'Content-Type':'application/json'},
+ body:JSON.stringify({name,skills,jobSkills})});
+ let data=await res.json();
+ loadCandidates();
+}
+
+async function loadCandidates(){
+ let res=await fetch(API+'/candidates');
+ let data=await res.json();
+ let list=document.getElementById('list');
+ list.innerHTML='';
+ data.forEach(c=>{
+  let li=document.createElement('li');
+  li.innerText=c.name + " - Score: "+c.score;
+  list.appendChild(li);
+ });
+}
+
+loadCandidates();
+</script>
+
+</body>
+</html>
